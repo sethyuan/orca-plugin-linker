@@ -3,6 +3,7 @@ import zhCN from "./translations/zhCN"
 
 let pluginName: string
 let originalGetAssetPath: (assetPath: string) => string
+let unsubscribe: () => void
 
 export async function load(_name: string) {
   pluginName = _name
@@ -32,6 +33,15 @@ export async function load(_name: string) {
     },
   })
 
+  // Overwrite only when manually changing the settings.
+  const subscribe = window.Valtio.subscribe
+  unsubscribe = subscribe(orca.state.plugins[pluginName], () => {
+    localStorage.setItem(
+      `${pluginName}-settings`,
+      JSON.stringify(orca.state.plugins[pluginName]!.settings ?? {}),
+    )
+  })
+
   originalGetAssetPath = orca.utils.getAssetPath
   orca.utils.getAssetPath = getAssetPath
 
@@ -42,12 +52,26 @@ export async function unload() {
   // Clean up any resources used by the plugin here.
   orca.utils.getAssetPath = originalGetAssetPath
 
+  if (unsubscribe) {
+    unsubscribe()
+  }
+
   console.log(`${pluginName} unloaded.`)
 }
 
 function getAssetPath(assetPath: string): string {
-  const virtualPaths =
-    orca.state.plugins[pluginName]?.settings?.virtualPaths ?? []
+  const stored = localStorage.getItem(`${pluginName}-settings`)
+  const settings = stored
+    ? JSON.parse(stored)
+    : orca.state.plugins[pluginName]?.settings
+  const virtualPaths = settings?.virtualPaths ?? []
+
+  if (!stored) {
+    localStorage.setItem(
+      `${pluginName}-settings`,
+      JSON.stringify({ virtualPaths }),
+    )
+  }
 
   for (const { virtual, real } of virtualPaths) {
     if (!virtual) continue
