@@ -4,7 +4,7 @@ A Orca Note plugin that helps you manage big assets outside of Orca Note by crea
 
 ## Usage
 
-1. Download the zip file from the [releases page](https://github.com/sethyuan/orca-linker/releases) and extract it into Orca Note's `plugins` directory.
+1. Download the zip file from the [releases page](https://github.com/sethyuan/orca-plugin-linker/releases) and extract it into Orca Note's `plugins` directory.
 2. Start/restart Orca Note, enable the plugin under the app's settings.
 3. Configure your virtual paths.
 4. Use them in our assets.
